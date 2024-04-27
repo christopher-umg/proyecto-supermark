@@ -9,7 +9,7 @@
 	/*----------  
 	Nombre de la empresa o compañia -  Company or company name
 	----------*/
-	const COMPANY="Carlos Alfaro";
+	const COMPANY="SUPERMARCK";
 
 
 	/*----------  Idioma - Language
@@ -34,15 +34,15 @@
 
 
 	/*----------  Redes sociales - Social networks  ----------*/
-	const FACEBOOK="https://www.facebook.com/CarlosAlfaroES/";
+	const FACEBOOK="";
 	const INSTAGRAM="";
-	const YOUTUBE="https://www.youtube.com/c/CarlosAlfaro007";
+	const YOUTUBE="";
 	const TWITTER="";
 
 
 	/*----------  Direccion - Address  ----------*/
-	const COUNTRY="El Salvador";
-	const ADDRESS="San Salvador, El Salvador, Centro América";
+	const COUNTRY="Guatemala";
+	const ADDRESS="Guatemala, Centro América";
 	
 
 	/*----------  Configuración de moneda - Currency Settings  ----------*/
@@ -92,7 +92,7 @@
 
 
 	/*----------  Zona horaria - Time zone  ----------*/
-	date_default_timezone_set("America/El_Salvador");
+	date_default_timezone_set("America/Guatemala");
 
 	/*
 		Configuración de zona horaria de tu país, para más información visita - Time zone configuration of your country, for more information visit
