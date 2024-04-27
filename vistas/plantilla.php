@@ -12,9 +12,11 @@
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo LANG; ?>">
+
 <head>
-    <?php include "./vistas/inc/head.php"; ?>	
+    <?php include "./vistas/inc/head.php"; ?>
 </head>
+
 <body id="main-body" class="scroll">
     <?php
         $peticion_ajax=false;
@@ -48,24 +50,24 @@
                     $ins_login->forzar_cierre_sesion_controlador();
                 }
     ?>
-                <!-- Main container -->
-                <main class="full-box main-container">
-                    <!-- Nav lateral -->
-                    <?php include "./vistas/inc/".LANG."/nav_lateral.php"; ?>
+    <!-- Main container -->
+    <main class="full-box main-container">
+        <!-- Nav lateral -->
+        <?php include "./vistas/inc/".LANG."/nav_lateral.php"; ?>
 
-                    <!-- Page content -->
-                    <section class="full-box page-content scroll">
+        <!-- Page content -->
+        <section class="full-box page-content scroll">
 
-                        <!-- Nav bar -->
-                        <?php include "./vistas/inc/".LANG."/nav_bar.php"; ?>
+            <!-- Nav bar -->
+            <?php include "./vistas/inc/".LANG."/nav_bar.php"; ?>
 
-                        <?php 
+            <?php 
                             /*---------- Vista ----------*/
                             require_once $vistas;
                         ?>
 
-                    </section>
-                </main> 
+        </section>
+    </main>
     <?php
                 include "./vistas/inc/log_out_admin.php";
             }
@@ -96,4 +98,5 @@
         include "./vistas/inc/scripts.php"; 
     ?>
 </body>
+
 </html>
