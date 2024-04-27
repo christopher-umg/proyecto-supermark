@@ -84,7 +84,7 @@
                     </ul>
                 </li>
 
-                <!--
+
                 <li>
                     <a href="javascript:void(0);" class="nav-btn-submenu"><i
                             class="fas fa-file-invoice-dollar fa-fw"></i> &nbsp; Pedidos & Ventas <i
@@ -102,7 +102,7 @@
                         </li>
                     </ul>
                 </li>
-                        -->
+
 
 
 

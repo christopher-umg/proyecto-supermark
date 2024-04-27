@@ -79,7 +79,7 @@
         $total_pedidos=$ins_login->datos_tabla("Normal","venta WHERE venta_estado_envio='Pedido'","venta_id",0);
     ?>
 -->
-    <!--
+
     <a href="#" class="tile">
         <div class="tile-tittle">Pedidos</div>
         <div class="tile-icon">
@@ -87,21 +87,20 @@
             <p><?php echo $total_pedidos->rowCount(); ?> Registrados</p>
         </div>
     </a>
-    -->
+
     <?php 
         $total_pedidos->closeCursor();
         $total_pedidos=$ins_login->desconectar($total_pedidos);
     ?>
 
-    <!-- 
-        <a href="#" class="tile">
+    <a href="#" class="tile">
         <div class="tile-tittle">Ventas</div>
         <div class="tile-icon">
             <i class="fas fa-file-invoice-dollar fa-fw"></i>
             <p>&nbsp;</p>
         </div>
-        </a>
+    </a>
 
-    -->
+
 
 </div>
