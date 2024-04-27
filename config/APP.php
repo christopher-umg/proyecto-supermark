@@ -3,13 +3,13 @@
 	/*----------  
 	Ruta o dominio del servidor  - Server path or domain
 	----------*/
-	const SERVERURL="http://localhost/tienda/";
+	const SERVERURL="http://localhost/proyecto-supermark/";
 
 
 	/*----------  
 	Nombre de la empresa o compañia -  Company or company name
 	----------*/
-	const COMPANY="Carlos Alfaro";
+	const COMPANY="Supermark GRUPO 3";
 
 
 	/*----------  Idioma - Language
