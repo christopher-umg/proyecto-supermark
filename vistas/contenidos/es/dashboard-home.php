@@ -31,14 +31,13 @@
         $total_clientes=$ins_login->datos_tabla("Normal","cliente","cliente_id",0); 
     ?>
 
-    <!-- <a href="<?php echo SERVERURL.DASHBOARD; ?>/client-list/" class="tile">
+    <a href="<?php echo SERVERURL.DASHBOARD; ?>/client-list/" class="tile" hidden>
         <div class="tile-tittle">Clientes</div>
         <div class="tile-icon">
             <i class="fas fa-users fa-fw"></i>
             <p><?php echo $total_clientes->rowCount(); ?> Registrados</p>
         </div>
-        </a>
-    -->
+    </a>
 
     <?php 
         $total_clientes->closeCursor();
@@ -56,7 +55,7 @@
         </div>
     </a>
 
-    <!--
+
     <?php
         $total_productos->closeCursor();
         $total_productos=$ins_login->desconectar($total_productos);
@@ -64,7 +63,7 @@
         if($_SESSION['cargo_sto']=="Administrador"){
             $total_usuarios=$ins_login->datos_tabla("Normal","usuario WHERE usuario_id!='1' AND usuario_id!='".$_SESSION['id_sto']."'","usuario_id",0);
     ?>
-    <a href="<?php echo SERVERURL.DASHBOARD; ?>/admin-list/" class="tile">
+    <a href="<?php echo SERVERURL.DASHBOARD; ?>/admin-list/" class="tile" hidden>
         <div class="tile-tittle">Administradores</div>
         <div class="tile-icon">
             <i class="fas fa-user-secret fa-fw"></i>
@@ -78,7 +77,7 @@
 
         $total_pedidos=$ins_login->datos_tabla("Normal","venta WHERE venta_estado_envio='Pedido'","venta_id",0);
     ?>
--->
+
 
     <a href="#" class="tile">
         <div class="tile-tittle">Pedidos</div>

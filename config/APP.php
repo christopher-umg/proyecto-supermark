@@ -9,7 +9,7 @@
 	/*----------  
 	Nombre de la empresa o compañia -  Company or company name
 	----------*/
-	const COMPANY="SUPERMARCK";
+	const COMPANY="Supermarket";
 
 
 	/*----------  Idioma - Language
@@ -34,28 +34,28 @@
 
 
 	/*----------  Redes sociales - Social networks  ----------*/
-	const FACEBOOK="";
+	const FACEBOOK="https://www.facebook.com/CarlosAlfaroES/";
 	const INSTAGRAM="";
-	const YOUTUBE="";
+	const YOUTUBE="https://www.youtube.com/c/CarlosAlfaro007";
 	const TWITTER="";
 
 
 	/*----------  Direccion - Address  ----------*/
 	const COUNTRY="Guatemala";
-	const ADDRESS="Guatemala, Centro América";
+	const ADDRESS="Guatemala, Chimaltenango, Centro América";
 	
 
 	/*----------  Configuración de moneda - Currency Settings  ----------*/
-	const COIN_SYMBOL="$";
-	const COIN_NAME="USD";
+	const COIN_SYMBOL="Q";
+	const COIN_NAME="GTQ";
 	const COIN_DECIMALS="2";
 	const COIN_SEPARATOR_THOUSAND=",";
 	const COIN_SEPARATOR_DECIMAL=".";
 
 
 	/*----------  Tipos de documentos - Document types ----------*/
-	const DOCUMENTS_USERS=["DNI","Cedula","DUI","Licencia","Pasaporte","Otro"];
-	const DOCUMENTS_COMPANY=["DNI","Cedula","RUT","NIT","RUC","Otro"];
+	const DOCUMENTS_USERS=["DPI","Cedula","DUI","Licencia","Pasaporte","Otro"];
+	const DOCUMENTS_COMPANY=["DPI","Cedula","RUT","NIT","RUC","Otro"];
 
 
 	/*----------  Tipos de unidades de productos - Types of product units ----------*/
@@ -92,7 +92,7 @@
 
 
 	/*----------  Zona horaria - Time zone  ----------*/
-	date_default_timezone_set("America/Guatemala");
+	date_default_timezone_set("America/El_Salvador");
 
 	/*
 		Configuración de zona horaria de tu país, para más información visita - Time zone configuration of your country, for more information visit
