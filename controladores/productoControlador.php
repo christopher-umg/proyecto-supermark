@@ -621,7 +621,7 @@
                                             <strong class="text-uppercase"><i class="fas fa-barcode fa-fw"></i> SKU:</strong> '.$rows['producto_sku'].'
                                         </div>
                                         <div class="col-6 col-lg-4 mb-2">
-                                            <strong class="text-uppercase"><i class="fas fa-dollar-sign fa-fw"></i> Precio:</strong> '.COIN_SYMBOL.number_format($total_price,COIN_DECIMALS,COIN_SEPARATOR_DECIMAL,COIN_SEPARATOR_THOUSAND).' '.COIN_NAME.'
+                                            <strong class="text-uppercase"><i class="fas fa-money-bill fa-fw"></i> Precio:</strong> '.COIN_SYMBOL.number_format($total_price,COIN_DECIMALS,COIN_SEPARATOR_DECIMAL,COIN_SEPARATOR_THOUSAND).' '.COIN_NAME.'
                                         </div>
                                         <div class="col-6 col-lg-4 mb-2">
                                             <strong class="text-uppercase"><i class="fas fa-box fa-fw"></i> Stock:</strong> '.$rows['producto_stock'].' '.$rows['producto_presentacion'].'

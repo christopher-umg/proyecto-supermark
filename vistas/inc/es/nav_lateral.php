@@ -38,9 +38,10 @@
                     </ul>
                 </li>
                 <?php } ?>
-                <!-- 
-                    <li>
-                    <a href="javascript:void(0);" class="nav-btn-submenu"><i class="fas fa-users fa-fw"></i> &nbsp;
+
+                <li>
+                    <a href="javascript:void(0);" class="nav-btn-submenu" hidden><i class="fas fa-users fa-fw"></i>
+                        &nbsp;
                         Clientes <i class="fas fa-chevron-down"></i></a>
                     <ul>
                         <li>
@@ -56,8 +57,8 @@
                                     class="fas fa-search fa-fw"></i> &nbsp; Buscar cliente</a>
                         </li>
                     </ul>
-                    </li>
-                    -->
+                </li>
+
                 <li>
                     <a href="javascript:void(0);" class="nav-btn-submenu"><i class="fas fa-box-open fa-fw"></i>
                         &nbsp;
@@ -112,8 +113,9 @@
 
 
 
-                <!-- <?php if($_SESSION['cargo_sto']=="Administrador"){ ?> <li>
-                    <a href="javascript:void(0);" class="nav-btn-submenu"><i class="fas  fa-user-secret fa-fw"></i>
+                <?php if($_SESSION['cargo_sto']=="Administrador"){ ?> <li>
+                    <a href="javascript:void(0);" class="nav-btn-submenu" hidden><i
+                            class="fas  fa-user-secret fa-fw"></i>
                         &nbsp; Administradores <i class="fas fa-chevron-down"></i></a>
                     <ul>
                         <li>
@@ -129,13 +131,14 @@
                                     class="fas fa-search fa-fw"></i> &nbsp; Buscar administrador</a>
                         </li>
                     </ul>
-                    </li>
-                    <?php } ?>
-                -->
+                </li>
+                <?php } ?>
 
-                <!--
+
+
                 <li>
-                    <a href="javascript:void(0);" class="nav-btn-submenu"><i class="fas fa-cogs fa-fw"></i> &nbsp;
+                    <a href="javascript:void(0);" class="nav-btn-submenu" hidden><i class="fas fa-cogs fa-fw"></i>
+                        &nbsp;
                         Configuraciones <i class="fas fa-chevron-down"></i></a>
                     <ul>
                         <?php if($_SESSION['cargo_sto']=="Administrador"){ ?>
@@ -151,12 +154,12 @@
                         </li>
                     </ul>
                 </li>
-                -->
 
-                <!-- <li>
-                    <a href="<?php echo SERVERURL;?>"><i class="fas fa-home fa-fw"></i> &nbsp; Sitio web</a>
-                    </li>
-                        -->
+
+                <li>
+                    <a href="<?php echo SERVERURL;?>" hidden><i class="fas fa-home fa-fw"></i> &nbsp; Sitio web</a>
+                </li>
+
 
                 <li>
                     <a href="javascript:void(0);" onclick="cerrar_sesion_administrador()"><i
