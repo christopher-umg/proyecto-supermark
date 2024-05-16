@@ -84,21 +84,27 @@
                     </ul>
                 </li>
 
-
                 <li>
-                    <a href="javascript:void(0);" class="nav-btn-submenu"><i
-                            class="fas fa-file-invoice-dollar fa-fw"></i> &nbsp; Pedidos & Ventas <i
-                            class="fas fa-chevron-down"></i></a>
+                    <a href="javascript:void(0);" class="nav-btn-submenu"><i class="fas fa-file-invoice-dollar fa-fw"></i> 
+                    &nbsp; Pedidos & Ventas <i class="fas fa-chevron-down"></i></a>
                     <ul>
+                        <?php if($_SESSION['cargo_sto']=="Administrador"){ ?>
                         <li>
-                            <a href="#"><i class="fas fa-file-invoice-dollar fa-fw"></i> &nbsp; Ventas
-                                realizadas</a>
+                            <a href="<?php echo SERVERURL.DASHBOARD; ?>/ventas-new/"><i class="fas fa-plus fa-fw"></i>
+                                &nbsp; Nueva venta</a>
+                        </li>
+                        <?php } ?>
+                        <li>
+                            <a href="<?php echo SERVERURL.DASHBOARD; ?>/ventas-realizadas/"><i class="fas fa-file-invoice-dollar fa-fw"></i> 
+                            &nbsp; Ventas realizadas</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fas fa-truck-loading fa-fw"></i> &nbsp; Pedidos pendientes</a>
+                            <a href="<?php echo SERVERURL.DASHBOARD; ?>/pedidos-pendientes/"><i class="fas fa-truck-loading fa-fw"></i> 
+                            &nbsp; Pedidos pendientes</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fas fa-search-dollar fa-fw"></i> &nbsp; Buscar pedido o venta</a>
+                            <a href="<?php echo SERVERURL.DASHBOARD; ?>/buscar-venta/"><i class="fas fa-search-dollar fa-fw"></i> 
+                            &nbsp; Buscar pedido o venta</a>
                         </li>
                     </ul>
                 </li>

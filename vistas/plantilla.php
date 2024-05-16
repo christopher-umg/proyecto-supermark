@@ -17,7 +17,7 @@
     <?php include "./vistas/inc/head.php"; ?>
 </head>
 
-<body id="main-body" class="scroll">
+<body id="main-body" class="scroll">    
     <?php
         $peticion_ajax=false;
 
