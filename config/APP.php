@@ -1,6 +1,7 @@
 <?php
 
 	const APP_URL="http://localhost/supermarck/";
+	const BANCO_URL="http://26.46.185.245/BancoKJC/KSJ/";
 	const APP_NAME="Supermarck";
 	const APP_SESSION_NAME="POS";
 

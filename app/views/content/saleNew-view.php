@@ -239,6 +239,11 @@
                 <?php } ?>
 
                 <div class="control mb-5">
+                    <label>Cuenta bancaria <?php echo CAMPO_OBLIGATORIO; ?></label>
+                    <input class="input" type="text" name="cuenta_bancaria" id="cuenta_bancaria" value="00000000000" pattern="[0-9.]{1,11}" maxlength="11" >
+                </div>
+
+                <div class="control mb-5">
                     <label>Total pagado por cliente <?php echo CAMPO_OBLIGATORIO; ?></label>
                     <input class="input" type="text" name="venta_abono" id="venta_abono" value="0.00" pattern="[0-9.]{1,25}" maxlength="25" >
                 </div>

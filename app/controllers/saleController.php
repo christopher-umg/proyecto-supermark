@@ -468,6 +468,7 @@
 
             $caja=$this->limpiarCadena($_POST['venta_caja']);
             $venta_pagado=$this->limpiarCadena($_POST['venta_abono']);
+			$cuenta_bancaria=$this->limpiarCadena($_POST['cuenta_bancaria']);
 
             /*== Comprobando integridad de los datos ==*/
             if($this->verificarDatos("[0-9.]{1,25}",$venta_pagado)){
@@ -475,6 +476,17 @@
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
 					"texto"=>"El total pagado por el cliente no coincide con el formato solicitado",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+		        exit();
+            }
+
+			if($this->verificarDatos("[0-9.]{1,11}",$cuenta_bancaria)){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"La cuenta bancaria no coincide con el formato solicitado",
 					"icono"=>"error"
 				];
 				return json_encode($alerta);
@@ -536,10 +548,11 @@
 
             /*== Formateando variables ==*/
             $venta_pagado=number_format($venta_pagado,MONEDA_DECIMALES,'.','');
+			$cuenta_bancaria = strval($cuenta_bancaria);
             $venta_total=number_format($_SESSION['venta_total'],MONEDA_DECIMALES,'.','');
 
             $venta_fecha=date("Y-m-d");
-            $venta_hora=date("h:i a");
+			$venta_hora = date("H:i:s"); // "H" representa la hora en formato de 24 horas, "i" los minutos y "s" los segundos
 
             $venta_total_final=$venta_total;
             $venta_total_final=number_format($venta_total_final,MONEDA_DECIMALES,'.','');
@@ -674,6 +687,11 @@
 					"campo_valor"=>$venta_pagado
 				],
 				[
+					"campo_nombre"=>"cuenta_bancaria",
+					"campo_marcador"=>":CuentaBancaria",
+					"campo_valor"=>$cuenta_bancaria
+				],
+				[
 					"campo_nombre"=>"venta_cambio",
 					"campo_marcador"=>":Cambio",
 					"campo_valor"=>$venta_cambio
@@ -695,190 +713,265 @@
 				]
             ];
 
-            /*== Agregando venta ==*/
-            $agregar_venta=$this->guardarDatos("venta",$datos_venta_reg);
+			// Llamada a la API
+			$authorization_value = "";
+			// Realizar la solicitud a la primera API
+			$url_auth = BANCO_URL . 'Authentication/Validate';
+			$data_auth = array(
+				'id' => '171633553',
+				'password' => 'cZ2Pxx'
+			);
+			// Configurar las opciones para la solicitud a la primera API
+			$options_auth = array(
+				'http' => array(
+					'header' => "Content-type: application/json\r\n",
+					'method' => 'POST',
+					'content' => json_encode($data_auth) // Convertir datos a JSON
+				)
+			);
 
-            if($agregar_venta->rowCount()!=1){
-                foreach($_SESSION['datos_producto_venta'] as $producto){
+			// Crear el contexto para la solicitud a la primera API
+			$context_auth = stream_context_create($options_auth);
+			// Realizar la solicitud a la primera API
+			$result_auth = file_get_contents($url_auth, false, $context_auth);
 
-                    $datos_producto_rs=[
-                        [
-							"campo_nombre"=>"producto_stock_total",
-							"campo_marcador"=>":Stock",
-							"campo_valor"=>$producto['producto_stock_total_old']
-						]
-                    ];
+			// Verificar si la solicitud a la primera API fue exitosa
+			if ($result_auth !== FALSE) {
+				// Decodificar la respuesta JSON para obtener el valor del encabezado Authorization
+				$response_primera_api = json_decode($result_auth);
+				// Verificar si el campo "authorization" existe en la respuesta
+				if (isset($response_primera_api->token)) {
+					// Asignar el valor del encabezado Authorization obtenido de la primera API
+					$authorization_value = $response_primera_api->token;
+				}
+			}
 
-                    $condicion=[
-                        "condicion_campo"=>"producto_id",
-                        "condicion_marcador"=>":ID",
-                        "condicion_valor"=>$producto['producto_id']
-                    ];
+			$url = BANCO_URL . 'Transactions/Pay';
+			$data = array(
+				'transactionDate' => $venta_fecha,
+				'hour' => $venta_hora,
+				'debitAccount' => '04810000280',
+				'creditAccount' => $cuenta_bancaria,
+				'amount' => $venta_total_final,
+				'transactionType' => '501',
+				'reference' => $codigo_venta
+			);
 
-                    $this->actualizarDatos("producto",$datos_producto_rs,$condicion);
-                }
-
-                $alerta=[
+			$options = array(
+				'http' => array(
+					'header' => "Content-type: application/json\r\n" .
+								"Authorization: Bearer " . $authorization_value . "\r\n",
+					'method' => 'POST',
+					'content' => json_encode($data) // Convertir datos a JSON
+				)
+			);
+	
+			$context = stream_context_create($options);
+			$result = file_get_contents($url, false, $context);
+			$response = json_decode($result);
+	
+			if ($result === FALSE) {
+				// Manejar el error de la llamada a la API
+				$errorMessage = $response->errorMessage;
+				$alerta=[
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 001",
+					"texto"=>"Error en la conexión con el Banco",
 					"icono"=>"error"
 				];
+
 				return json_encode($alerta);
-		        exit();
-            }
+				exit();
+			} else {
+				// Éxito en la llamada a la API
 
-            /*== Agregando detalles de la venta ==*/
-            $errores_venta_detalle=0;
-            foreach($_SESSION['datos_producto_venta'] as $venta_detalle){
+				/*== Agregando venta ==*/
+				$agregar_venta=$this->guardarDatos("venta",$datos_venta_reg);
 
-                /*== Preparando datos para enviarlos al modelo ==*/
-                $datos_venta_detalle_reg=[
-                	[
-						"campo_nombre"=>"venta_detalle_cantidad",
-						"campo_marcador"=>":Cantidad",
-						"campo_valor"=>$venta_detalle['venta_detalle_cantidad']
-					],
+				if($agregar_venta->rowCount()!=1){
+					foreach($_SESSION['datos_producto_venta'] as $producto){
+	
+						$datos_producto_rs=[
+							[
+								"campo_nombre"=>"producto_stock_total",
+								"campo_marcador"=>":Stock",
+								"campo_valor"=>$producto['producto_stock_total_old']
+							]
+						];
+	
+						$condicion=[
+							"condicion_campo"=>"producto_id",
+							"condicion_marcador"=>":ID",
+							"condicion_valor"=>$producto['producto_id']
+						];
+	
+						$this->actualizarDatos("producto",$datos_producto_rs,$condicion);
+					}
+	
+					$alerta=[
+						"tipo"=>"simple",
+						"titulo"=>"Ocurrió un error inesperado",
+						"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 001",
+						"icono"=>"error"
+					];
+					return json_encode($alerta);
+					exit();
+				}
+	
+				/*== Agregando detalles de la venta ==*/
+				$errores_venta_detalle=0;
+				foreach($_SESSION['datos_producto_venta'] as $venta_detalle){
+	
+					/*== Preparando datos para enviarlos al modelo ==*/
+					$datos_venta_detalle_reg=[
+						[
+							"campo_nombre"=>"venta_detalle_cantidad",
+							"campo_marcador"=>":Cantidad",
+							"campo_valor"=>$venta_detalle['venta_detalle_cantidad']
+						],
+						[
+							"campo_nombre"=>"venta_detalle_precio_compra",
+							"campo_marcador"=>":PrecioCompra",
+							"campo_valor"=>$venta_detalle['venta_detalle_precio_compra']
+						],
+						[
+							"campo_nombre"=>"venta_detalle_precio_venta",
+							"campo_marcador"=>":PrecioVenta",
+							"campo_valor"=>$venta_detalle['venta_detalle_precio_venta']
+						],
+						[
+							"campo_nombre"=>"venta_detalle_total",
+							"campo_marcador"=>":Total",
+							"campo_valor"=>$venta_detalle['venta_detalle_total']
+						],
+						[
+							"campo_nombre"=>"venta_detalle_descripcion",
+							"campo_marcador"=>":Descripcion",
+							"campo_valor"=>$venta_detalle['venta_detalle_descripcion']
+						],
+						[
+							"campo_nombre"=>"venta_codigo",
+							"campo_marcador"=>":VentaCodigo",
+							"campo_valor"=>$codigo_venta
+						],
+						[
+							"campo_nombre"=>"producto_id",
+							"campo_marcador"=>":Producto",
+							"campo_valor"=>$venta_detalle['producto_id']
+						]
+					];
+	
+					$agregar_detalle_venta=$this->guardarDatos("venta_detalle",$datos_venta_detalle_reg);
+	
+					if($agregar_detalle_venta->rowCount()!=1){
+						$errores_venta_detalle=1;
+						break;
+					}
+				}
+	
+				/*== Reestableciendo DB debido a errores ==*/
+				if($errores_venta_detalle==1){
+	
+					$this->eliminarRegistro("venta_detalle","venta_codigo",$codigo_venta);
+					$this->eliminarRegistro("venta","venta_codigo",$codigo_venta);
+	
+					foreach($_SESSION['datos_producto_venta'] as $producto){
+	
+						$datos_producto_rs=[
+							[
+								"campo_nombre"=>"producto_stock_total",
+								"campo_marcador"=>":Stock",
+								"campo_valor"=>$producto['producto_stock_total_old']
+							]
+						];
+	
+						$condicion=[
+							"condicion_campo"=>"producto_id",
+							"condicion_marcador"=>":ID",
+							"condicion_valor"=>$producto['producto_id']
+						];
+	
+						$this->actualizarDatos("producto",$datos_producto_rs,$condicion);
+					}
+	
+					$alerta=[
+						"tipo"=>"simple",
+						"titulo"=>"Ocurrió un error inesperado",
+						"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 002",
+						"icono"=>"error"
+					];
+					return json_encode($alerta);
+					exit();
+				}
+	
+				/*== Actualizando efectivo en caja ==*/
+				$datos_caja_up=[
 					[
-						"campo_nombre"=>"venta_detalle_precio_compra",
-						"campo_marcador"=>":PrecioCompra",
-						"campo_valor"=>$venta_detalle['venta_detalle_precio_compra']
-					],
-					[
-						"campo_nombre"=>"venta_detalle_precio_venta",
-						"campo_marcador"=>":PrecioVenta",
-						"campo_valor"=>$venta_detalle['venta_detalle_precio_venta']
-					],
-					[
-						"campo_nombre"=>"venta_detalle_total",
-						"campo_marcador"=>":Total",
-						"campo_valor"=>$venta_detalle['venta_detalle_total']
-					],
-					[
-						"campo_nombre"=>"venta_detalle_descripcion",
-						"campo_marcador"=>":Descripcion",
-						"campo_valor"=>$venta_detalle['venta_detalle_descripcion']
-					],
-					[
-						"campo_nombre"=>"venta_codigo",
-						"campo_marcador"=>":VentaCodigo",
-						"campo_valor"=>$codigo_venta
-					],
-					[
-						"campo_nombre"=>"producto_id",
-						"campo_marcador"=>":Producto",
-						"campo_valor"=>$venta_detalle['producto_id']
+						"campo_nombre"=>"caja_efectivo",
+						"campo_marcador"=>":Efectivo",
+						"campo_valor"=>$total_caja
 					]
-                ];
+				];
+	
+				$condicion_caja=[
+					"condicion_campo"=>"caja_id",
+					"condicion_marcador"=>":ID",
+					"condicion_valor"=>$caja
+				];
+	
+				if(!$this->actualizarDatos("caja",$datos_caja_up,$condicion_caja)){
+	
+					$this->eliminarRegistro("venta_detalle","venta_codigo",$codigo_venta);
+					$this->eliminarRegistro("venta","venta_codigo",$codigo_venta);
+	
+					foreach($_SESSION['datos_producto_venta'] as $producto){
+	
+						$datos_producto_rs=[
+							[
+								"campo_nombre"=>"producto_stock_total",
+								"campo_marcador"=>":Stock",
+								"campo_valor"=>$producto['producto_stock_total_old']
+							]
+						];
+	
+						$condicion=[
+							"condicion_campo"=>"producto_id",
+							"condicion_marcador"=>":ID",
+							"condicion_valor"=>$producto['producto_id']
+						];
+	
+						$this->actualizarDatos("producto",$datos_producto_rs,$condicion);
+					}
+	
+					$alerta=[
+						"tipo"=>"simple",
+						"titulo"=>"Ocurrió un error inesperado",
+						"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 003",
+						"icono"=>"error"
+					];
+					return json_encode($alerta);
+					exit();
+	
+				}
+	
+				/*== Vaciando variables de sesion ==*/
+				unset($_SESSION['venta_total']);
+				unset($_SESSION['datos_cliente_venta']);
+				unset($_SESSION['datos_producto_venta']);
+	
+				$_SESSION['venta_codigo_factura']=$codigo_venta;
 
-                $agregar_detalle_venta=$this->guardarDatos("venta_detalle",$datos_venta_detalle_reg);
+				$transactionNo = $response->transactionNo ?? '0';
 
-                if($agregar_detalle_venta->rowCount()!=1){
-                    $errores_venta_detalle=1;
-                    break;
-                }
-            }
-
-            /*== Reestableciendo DB debido a errores ==*/
-            if($errores_venta_detalle==1){
-
-                $this->eliminarRegistro("venta_detalle","venta_codigo",$codigo_venta);
-                $this->eliminarRegistro("venta","venta_codigo",$codigo_venta);
-
-                foreach($_SESSION['datos_producto_venta'] as $producto){
-
-                    $datos_producto_rs=[
-                        [
-							"campo_nombre"=>"producto_stock_total",
-							"campo_marcador"=>":Stock",
-							"campo_valor"=>$producto['producto_stock_total_old']
-						]
-                    ];
-
-                    $condicion=[
-                        "condicion_campo"=>"producto_id",
-                        "condicion_marcador"=>":ID",
-                        "condicion_valor"=>$producto['producto_id']
-                    ];
-
-                    $this->actualizarDatos("producto",$datos_producto_rs,$condicion);
-                }
-
-                $alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 002",
-					"icono"=>"error"
+				$alerta=[
+					"tipo"=>"recargar",
+					"titulo"=>"¡Venta registrada!",
+					"texto"=>"La venta se registró con éxito en el sistema. #Transferencia Banco: " . $transactionNo,
+					"icono"=>"success"
 				];
 				return json_encode($alerta);
-		        exit();
-            }
-
-            /*== Actualizando efectivo en caja ==*/
-            $datos_caja_up=[
-                [
-					"campo_nombre"=>"caja_efectivo",
-					"campo_marcador"=>":Efectivo",
-					"campo_valor"=>$total_caja
-				]
-            ];
-
-            $condicion_caja=[
-                "condicion_campo"=>"caja_id",
-                "condicion_marcador"=>":ID",
-                "condicion_valor"=>$caja
-            ];
-
-            if(!$this->actualizarDatos("caja",$datos_caja_up,$condicion_caja)){
-
-                $this->eliminarRegistro("venta_detalle","venta_codigo",$codigo_venta);
-                $this->eliminarRegistro("venta","venta_codigo",$codigo_venta);
-
-                foreach($_SESSION['datos_producto_venta'] as $producto){
-
-                    $datos_producto_rs=[
-                        [
-							"campo_nombre"=>"producto_stock_total",
-							"campo_marcador"=>":Stock",
-							"campo_valor"=>$producto['producto_stock_total_old']
-						]
-                    ];
-
-                    $condicion=[
-                        "condicion_campo"=>"producto_id",
-                        "condicion_marcador"=>":ID",
-                        "condicion_valor"=>$producto['producto_id']
-                    ];
-
-                    $this->actualizarDatos("producto",$datos_producto_rs,$condicion);
-                }
-
-                $alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No hemos podido registrar la venta, por favor intente nuevamente. Código de error: 003",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-
-            }
-
-            /*== Vaciando variables de sesion ==*/
-            unset($_SESSION['venta_total']);
-            unset($_SESSION['datos_cliente_venta']);
-            unset($_SESSION['datos_producto_venta']);
-
-            $_SESSION['venta_codigo_factura']=$codigo_venta;
-
-            $alerta=[
-				"tipo"=>"recargar",
-				"titulo"=>"¡Venta registrada!",
-				"texto"=>"La venta se registró con éxito en el sistema",
-				"icono"=>"success"
-			];
-			return json_encode($alerta);
-	        exit();
+				exit();
+			}
         }
 
 
